@@ -82,6 +82,8 @@ public class StringActivity extends AppCompatActivity {
     }
 
     public void start_str(View view) {
+        NetworkService.writeLineFile(other_file, false, "");
+        Toast.makeText(StringActivity.this, "清空html_new完毕", Toast.LENGTH_LONG).show();
         need_list.clear();
         need_list = null;
         need_list = new ArrayList<String>();
@@ -101,15 +103,22 @@ public class StringActivity extends AppCompatActivity {
                         BufferedReader br = null; //用于包装InputStreamReader,提高处理性能。因为BufferedReader有缓冲的，而InputStreamReader没有。
                         try {
                             String str = "";
-                            fis = new FileInputStream("");// FileInputStream
+                            fis = new FileInputStream(sd_file);// FileInputStream
                             // 从文件系统中的某个文件中获取字节
                             isr = new InputStreamReader(fis);// InputStreamReader 是字节流通向字符流的桥梁,
                             br = new BufferedReader(isr);// 从字符输入流中读取文件中的内容,封装了一个new InputStreamReader的对象
                             while ((str = br.readLine()) != null) {
+                                int num =0;
                                 for (String string : need_list) {
-                                    if (str.indexOf(string) == -1) {
-                                        NetworkService.writeLineFile(other_file, true, str);
+                                    MainActivity.showLog("String:"+string+"    str:"+str);
+                                    if (str.indexOf(string)>0) {
+                                        break;
+                                    }else{
+                                        num++;
                                     }
+                                }
+                                if(num==need_list.size()){
+                                    NetworkService.writeLineFile(other_file, true, str);
                                 }
                             }
                             // 当读取的一行不为空时,把读到的str的值赋给str1
@@ -150,4 +159,10 @@ public class StringActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void clearn_html_new(View view){
+        NetworkService.writeLineFile(other_file, false, "");
+        Toast.makeText(StringActivity.this, "清空html_new完毕", Toast.LENGTH_LONG).show();
+    }
+
 }

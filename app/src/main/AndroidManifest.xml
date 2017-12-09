@@ -25,7 +25,9 @@
         <activity android:name=".StringActivity"
             android:theme="@style/AppTheme"
             />
-
+        <activity android:name=".WebActivity"
+            android:theme="@style/AppTheme"
+            />
         <service
             android:name=".NetworkService">
             <intent-filter android:priority="1000">

@@ -7,7 +7,9 @@
     <EditText
         android:id="@+id/need_string"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
+        android:gravity="left|top"
+        android:lines="3"
         android:padding="8dp"
         android:textSize="14sp" />
 
@@ -16,5 +18,10 @@
         android:layout_height="wrap_content"
         android:onClick="start_str"
         android:text="开始"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="clearn_html_new"
+        android:text="清空html_new"/>
 
 </LinearLayout>

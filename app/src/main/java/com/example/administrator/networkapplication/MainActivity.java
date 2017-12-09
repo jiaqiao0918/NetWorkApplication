@@ -89,6 +89,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this,StringActivity.class));
     }
 
+    public void start_web(View view){
+        startActivity(new Intent(MainActivity.this,WebActivity.class));
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {

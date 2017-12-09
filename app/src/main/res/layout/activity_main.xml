@@ -12,6 +12,11 @@
         android:layout_height="wrap_content"
         android:text="过滤"
         android:onClick="start_other"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="显示"
+        android:onClick="start_web"/>
 
     <EditText
         android:id="@+id/input_str"
