@@ -45,12 +45,14 @@ public class StringActivity extends AppCompatActivity {
         need_string = (EditText) findViewById(R.id.need_string);
         showReceiver = new ShowReceiver();
         registerReceiver(showReceiver, new IntentFilter(STRING_RECEIVER));
+        need_string.setText(SharedUtile.getSharedString(StringActivity.this,"need_string",""));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(showReceiver);
+        SharedUtile.putSharedString(StringActivity.this,"need_string",need_string.getText().toString());
     }
 
     private void intoFile() {
