@@ -86,17 +86,17 @@ public class WebActivity extends AppCompatActivity {
         } else {
             Toast.makeText(WebActivity.this, "文件不存在", Toast.LENGTH_SHORT).show();
         }
+        Toast.makeText(WebActivity.this, "总数：" + list.size(), Toast.LENGTH_LONG).show();
         if (list.size() > 0) {
             num = 0;
             all = list.size();
-            Toast.makeText(WebActivity.this, "总数：" + list.size(), Toast.LENGTH_SHORT).show();
-            if (all < SharedUtile.getSharedInt(WebActivity.this, "list_all", 0)) {
+            if (all < SettingUtil.getListAll(WebActivity.this)) {
                 num = list.size();
-                SharedUtile.putSharedInt(WebActivity.this, "list_num", num);
+                SettingUtil.setListNum(WebActivity.this,num);
             } else {
-                num = SharedUtile.getSharedInt(WebActivity.this, "list_num", 0);
+                num = SettingUtil.getListNum(WebActivity.this);
             }
-            SharedUtile.putSharedInt(WebActivity.this, "list_all", list.size());
+            SettingUtil.setListNum(WebActivity.this,list.size());
             show_html.loadUrl(getUrl(list.get(num)));
             show_url.setText(getUrl(list.get(num)));
         }
@@ -112,7 +112,7 @@ public class WebActivity extends AppCompatActivity {
                 show_url.setText(getUrl(list.get(num)));
                 show_html.loadUrl(getUrl(list.get(num)));
             }
-            SharedUtile.putSharedInt(WebActivity.this, "list_num", num);
+            SettingUtil.setListNum(WebActivity.this,num);
         }
     }
 
@@ -125,13 +125,13 @@ public class WebActivity extends AppCompatActivity {
                 show_url.setText(getUrl(list.get(num)));
                 show_html.loadUrl(getUrl(list.get(num)));
             }
-            SharedUtile.putSharedInt(WebActivity.this, "list_num", num);
+            SettingUtil.setListNum(WebActivity.this,num);
         }
     }
 
     public String getUrl(String string) {
         string = string.substring(0, string.indexOf("#"));
-        string = "http://m.sanhao3.net/info-" + string + "/";
+        string = SettingUtil.getUrl01(WebActivity.this) + string + SettingUtil.getUrl03(WebActivity.this);
         return string;
     }
 

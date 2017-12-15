@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class StringActivity extends AppCompatActivity {
     private ArrayList<String> need_list = new ArrayList<String>();
     private String sd_filer = "";
     private String sd_file = "";
+    private String old_file = "";
     private String other_file = "";
     private boolean read_start = true;
 
@@ -45,23 +47,25 @@ public class StringActivity extends AppCompatActivity {
         need_string = (EditText) findViewById(R.id.need_string);
         showReceiver = new ShowReceiver();
         registerReceiver(showReceiver, new IntentFilter(STRING_RECEIVER));
-        need_string.setText(SharedUtile.getSharedString(StringActivity.this,"need_string",""));
+        need_string.setText(SettingUtil.getNotNeedString(StringActivity.this));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(showReceiver);
-        SharedUtile.putSharedString(StringActivity.this,"need_string",need_string.getText().toString());
+        SettingUtil.setNotNeedString(StringActivity.this, need_string.getText().toString());
     }
 
     private void intoFile() {
         sd_filer = Environment.getExternalStorageDirectory().getPath() + "/000";
         sd_file = sd_filer + "/html.txt";
         other_file = sd_filer + "/html_new.txt";
+        old_file = sd_filer + "/html_old.txt";
         File filer = new File(sd_filer);
         File file = new File(sd_file);
         File file02 = new File(other_file);
+        File file03 = new File(old_file);
         if (!filer.exists()) {
             filer.mkdir();
         }
@@ -79,11 +83,17 @@ public class StringActivity extends AppCompatActivity {
                 showLog(e.getMessage());
             }
         }
+        if (!file03.exists()) {
+            try {
+                file03.createNewFile();
+            } catch (IOException e) {
+                showLog(e.getMessage());
+            }
+        }
     }
 
     public void start_str(View view) {
         NetworkService.writeLineFile(other_file, false, "");
-        Toast.makeText(StringActivity.this, "清空html_new完毕", Toast.LENGTH_LONG).show();
         need_list.clear();
         need_list = null;
         need_list = new ArrayList<String>();
@@ -103,26 +113,30 @@ public class StringActivity extends AppCompatActivity {
                         BufferedReader br = null; //用于包装InputStreamReader,提高处理性能。因为BufferedReader有缓冲的，而InputStreamReader没有。
                         try {
                             String str = "";
-                            fis = new FileInputStream(sd_file);// FileInputStream
+                            fis = new FileInputStream(old_file);// FileInputStream
                             // 从文件系统中的某个文件中获取字节
                             isr = new InputStreamReader(fis);// InputStreamReader 是字节流通向字符流的桥梁,
                             br = new BufferedReader(isr);// 从字符输入流中读取文件中的内容,封装了一个new InputStreamReader的对象
+                            int all_num = 0;
                             while ((str = br.readLine()) != null) {
-                                int num =0;
+                                int num = 0;
+                                all_num++;
                                 for (String string : need_list) {
-                                    MainActivity.showLog("String:"+string+"    str:"+str);
-                                    if (str.indexOf(string)>0) {
+                                    if (str.indexOf(string) > 0) {
                                         break;
-                                    }else{
+                                    } else {
                                         num++;
                                     }
                                 }
-                                if(num==need_list.size()){
+                                if (num == need_list.size()) {
                                     NetworkService.writeLineFile(other_file, true, str);
                                 }
                             }
-                            // 当读取的一行不为空时,把读到的str的值赋给str1
-                            sendBroadcast(new Intent(STRING_RECEIVER).putExtra("type", 1).putExtra("string", "过滤完毕"));
+                            if (all_num == 0) {
+                                sendBroadcast(new Intent(STRING_RECEIVER).putExtra("type", 1).putExtra("string", "html_old文件为空"));
+                            } else {
+                                sendBroadcast(new Intent(STRING_RECEIVER).putExtra("type", 1).putExtra("string", "过滤完毕"));
+                            }
                         } catch (FileNotFoundException e) {
                             System.out.println("找不到指定文件");
                         } catch (IOException e) {
@@ -160,9 +174,31 @@ public class StringActivity extends AppCompatActivity {
         }
     }
 
-    public void clearn_html_new(View view){
+    public void clearn_html_new(View view) {
         NetworkService.writeLineFile(other_file, false, "");
         Toast.makeText(StringActivity.this, "清空html_new完毕", Toast.LENGTH_LONG).show();
+    }
+
+    public void copy_html(View view) {
+        copyFile(sd_file, old_file);
+        Toast.makeText(StringActivity.this, "复制html完毕", Toast.LENGTH_LONG).show();
+    }
+
+    public void copyFile(String fromFile, String toFile) {
+        try {
+            FileInputStream ins = new FileInputStream(new File(fromFile));
+            FileOutputStream out = new FileOutputStream(new File(toFile));
+            byte[] b = new byte[1024];
+            int n = 0;
+            while ((n = ins.read(b)) != -1) {
+                out.write(b, 0, n);
+            }
+
+            ins.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

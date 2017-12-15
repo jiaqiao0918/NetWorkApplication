@@ -35,16 +35,18 @@ public class NetworkService extends Service {
     private PowerManager.WakeLock mWakeLock;
     private String network_str = "";
     private int num = 1;
-    private String url = "http://m.sanhao3.net/info-";
-    private String enclod = "gbk";
+    private String url = "";
+    private String enclod = "";
     private String fengge = "#";
     private ArrayList<String> need_list = new ArrayList<String>();
+    private ArrayList<String> not_need_list = new ArrayList<String>();
     private NetworkReceiver networkReceiver;
     private String sd_filer = "";
     private String sd_file = "";
     private int error_num = 0;
     private String last_str = "";
     private boolean is_start = false;
+    private String str01, str02;
 
 
     @Nullable
@@ -61,8 +63,8 @@ public class NetworkService extends Service {
         intoFile();
         networkReceiver = new NetworkReceiver();
         registerReceiver(networkReceiver, new IntentFilter(RECEVIER));
-        num = SharedUtile.getSharedInt(NetworkService.this, "need_num", 0);
-        error_num = SharedUtile.getSharedInt(NetworkService.this, "error_num", 0);
+        num = SettingUtil.getNeedNum(NetworkService.this);
+        error_num = SettingUtil.getErrorNum(NetworkService.this);
     }
 
     private void intoFile() {
@@ -98,22 +100,30 @@ public class NetworkService extends Service {
         Intent intent = new Intent(this, NetworkService.class);
         PendingIntent pintent = PendingIntent.getService(this, 0, intent, 0);
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        // 每5分钟启动一次，这个时间值视具体情况而定
         alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 1 * 60 * 1000, pintent);//restartTime分钟，单位：毫秒
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String[] temp = "院#园#潦".split(fengge);
-        is_start = SharedUtile.getSharedBoolean(NetworkService.this,"is_start",false);
-        num = SharedUtile.getSharedInt(NetworkService.this, "need_num", 0);
-        for (int i = 0; i < temp.length; i++) {
-            need_list.add(temp[i]);
+        String[] temp01 = SettingUtil.getNeedString(NetworkService.this).split(fengge);
+        String[] temp02 = SettingUtil.getNotNeedString(NetworkService.this).split(fengge);
+        is_start = SettingUtil.getIsStart(NetworkService.this, false);
+        num = SettingUtil.getNeedNum(NetworkService.this);
+        enclod = SettingUtil.getEnclod(NetworkService.this);
+        str01 = SettingUtil.getStartString(NetworkService.this);
+        str02 = SettingUtil.getStopString(NetworkService.this);
+        need_list.clear();
+        not_need_list.clear();
+        for (int i = 0; i < temp01.length; i++) {
+            need_list.add(temp01[i]);
+        }
+        for (int i = 0; i < temp02.length; i++) {
+            not_need_list.add(temp02[i]);
         }
         if (need_list.size() > 0) {
             if (is_start) {
                 is_start = false;
-                getHtml(url + num + "/", "gbk");
+                getHtml(SettingUtil.getUrl01(NetworkService.this) + SettingUtil.getNeedNum(NetworkService.this) + SettingUtil.getUrl03(NetworkService.this), enclod);
             } else {
                 is_start = true;
             }
@@ -176,27 +186,42 @@ public class NetworkService extends Service {
             switch (intent.getIntExtra("type", -1)) {
                 case GET_URL_HTML:
                     String string = intent.getStringExtra("get_url_string") + "";
-                    if (!string.equals("") && !string.equals("ERROR")) {
+                    if (!string.equals("") && !string.equals("ERROR") && string.indexOf("出错") == -1) {
                         string = string.replaceAll("[^\u4E00-\u9FA5]", "");//保留中文
-                        if (string.indexOf("小说简介") > -1 && string.indexOf("最新章节") > -1) {
-                            int num01 = string.indexOf("小说简介") + "小说简介".length();
-                            int num02 = string.indexOf("最新章节");
-                            if (num02 < num01) {
-                                num02 = string.length();
+
+                        String temp_str = string;
+                        if (!str01.equals("") && !str02.equals("")) {
+                            if (string.indexOf(str01) > -1 && string.indexOf(str02) > -1) {
+                                int num01 = string.indexOf(str01) + str01.length();
+                                int num02 = string.indexOf(str02);
+                                if (num02 > num01) {
+                                    temp_str = string.substring(num01, num02);
+                                }
                             }
-                            String temp_str = string.substring(num01, num02);
-                            for (String temp : need_list) {
+                        }
+                        boolean is_true = false;
+                        for (String temp : need_list) {
+                            if (temp_str.indexOf(temp) > -1) {
+                                is_true = true;
+                                break;
+                            } else {
+                                is_true = false;
+                            }
+                        }
+                        if (is_true && not_need_list.size() > 0) {
+                            for (String temp : not_need_list) {
                                 if (temp_str.indexOf(temp) > -1) {
                                     writeLineFile(sd_file, true, "$" + num + "#" + temp_str + "$");
                                     break;
                                 }
                             }
                         }
+
                         last_str = "ok";
                     } else {
                         if (last_str.equals("error")) {
                             error_num++;
-                            SharedUtile.putSharedInt(NetworkService.this, "error_num", error_num);
+                            SettingUtil.setErrorNum(NetworkService.this, error_num);
                             if (error_num >= 30) {
                                 is_start = false;
                             }
@@ -204,16 +229,15 @@ public class NetworkService extends Service {
                         last_str = "error";
                     }
                     num++;
-                    SharedUtile.putSharedInt(NetworkService.this, "need_num", num);
-//                    showLog("service num: "+num);
-                    is_start = SharedUtile.getSharedBoolean(NetworkService.this,"is_start",false);
-                    sendBroadcast(new Intent(RECEVIER).putExtra("type",1).putExtra("num",num));
+                    SettingUtil.setNeedNum(NetworkService.this, num);
+                    is_start = SettingUtil.getIsStart(NetworkService.this, false);
+                    sendBroadcast(new Intent(RECEVIER).putExtra("type", 1).putExtra("num", num));
                     if (num > 19000) {
                         is_start = false;
-                        SharedUtile.putSharedBoolean(NetworkService.this,"is_start",false);
+                        SettingUtil.setIsStart(NetworkService.this, is_start);
                     }
                     if (is_start && need_list.size() > 0) {
-                        getHtml(url + SharedUtile.getSharedInt(NetworkService.this, "need_num", 0) + "/", enclod);
+                        getHtml(SettingUtil.getUrl01(NetworkService.this) + SettingUtil.getNeedNum(NetworkService.this) + SettingUtil.getUrl03(NetworkService.this), enclod);
                     }
                     break;
                 case ERROR_STRING:

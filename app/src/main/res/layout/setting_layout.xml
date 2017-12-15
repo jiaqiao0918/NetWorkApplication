@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ededed"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/url_01"
+        style="@style/MyEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="前段" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/url_021"
+            style="@style/MyEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="启示num"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/url_022"
+            style="@style/MyEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="结束num"
+            android:inputType="number" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/url_03"
+        style="@style/MyEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="后段" />
+
+
+    <EditText
+        android:id="@+id/enclod"
+        style="@style/MyEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="编码" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/start_string"
+            style="@style/MyEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="开始位置" />
+
+        <EditText
+            android:id="@+id/stop_string"
+            style="@style/MyEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="结束位置" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/need_str"
+        style="@style/MyEditText"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:hint="关键词" />
+
+    <EditText
+        android:id="@+id/not_need_str"
+        style="@style/MyEditText"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:hint="过滤词" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:onClick="save_setting"
+        android:padding="8dp"
+        android:text="保存"
+        android:textSize="14sp" />
+
+    <View
+        android:id="@+id/click_view"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#00ffffff" />
+
+</LinearLayout>

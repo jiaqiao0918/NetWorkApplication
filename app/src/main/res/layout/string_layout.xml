@@ -6,6 +6,7 @@
 
     <EditText
         android:id="@+id/need_string"
+        style="@style/MyEditText"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:gravity="left|top"
@@ -16,12 +17,22 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="2dp"
         android:onClick="start_str"
-        android:text="开始"/>
+        android:text="开始" />
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        android:onClick="copy_html"
+        android:text="复制html" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
         android:onClick="clearn_html_new"
-        android:text="清空html_new"/>
+        android:text="清空html_new" />
 
 </LinearLayout>
